@@ -43,3 +43,10 @@ nb-configuration.xml
 /.quarkus/cli/plugins/
 # TLS Certificates
 .certs/
+
+# Desafio (artefatos do enunciado — não versionar)
+Desafio_Tecnico_Codificacao_JAVA*.docx
+DESAFIO_TECNICO.md
+
+# H2 file-mode datastore
+data/
