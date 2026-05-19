@@ -44,7 +44,6 @@ nb-configuration.xml
 # TLS Certificates
 .certs/
 
-# Desafio (artefatos do enunciado — não versionar)
 Desafio_Tecnico_Codificacao_JAVA*.docx
 DESAFIO_TECNICO.md
 
