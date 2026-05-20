@@ -1,5 +1,6 @@
 package org.caixaverso.simulador.service.calculo;
 
+import org.caixaverso.simulador.domain.exception.ParametroSimulacaoInvalidoException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -169,58 +170,58 @@ class CalculoJurosCompostosImplTest {
     class Validacao {
 
         @Test
-        @DisplayName("valorInicial null lanca NullPointerException")
+        @DisplayName("valorInicial null lanca ParametroSimulacaoInvalidoException")
         void valorInicialNull() {
             assertThrows(
-                    NullPointerException.class,
+                    ParametroSimulacaoInvalidoException.class,
                     () -> calculo.calcular(null, new BigDecimal("1.5"), 12));
         }
 
         @Test
-        @DisplayName("taxaJurosMensal null lanca NullPointerException")
+        @DisplayName("taxaJurosMensal null lanca ParametroSimulacaoInvalidoException")
         void taxaNull() {
             assertThrows(
-                    NullPointerException.class,
+                    ParametroSimulacaoInvalidoException.class,
                     () -> calculo.calcular(new BigDecimal("1000.00"), null, 12));
         }
 
         @Test
-        @DisplayName("valorInicial zero lanca IllegalArgumentException")
+        @DisplayName("valorInicial zero lanca ParametroSimulacaoInvalidoException")
         void valorInicialZero() {
             assertThrows(
-                    IllegalArgumentException.class,
+                    ParametroSimulacaoInvalidoException.class,
                     () -> calculo.calcular(new BigDecimal("0"), new BigDecimal("1.5"), 12));
         }
 
         @Test
-        @DisplayName("valorInicial negativo lanca IllegalArgumentException")
+        @DisplayName("valorInicial negativo lanca ParametroSimulacaoInvalidoException")
         void valorInicialNegativo() {
             assertThrows(
-                    IllegalArgumentException.class,
+                    ParametroSimulacaoInvalidoException.class,
                     () -> calculo.calcular(new BigDecimal("-100"), new BigDecimal("1.5"), 12));
         }
 
         @Test
-        @DisplayName("taxa negativa lanca IllegalArgumentException")
+        @DisplayName("taxa negativa lanca ParametroSimulacaoInvalidoException")
         void taxaNegativa() {
             assertThrows(
-                    IllegalArgumentException.class,
+                    ParametroSimulacaoInvalidoException.class,
                     () -> calculo.calcular(new BigDecimal("1000.00"), new BigDecimal("-1.5"), 12));
         }
 
         @Test
-        @DisplayName("prazo zero lanca IllegalArgumentException")
+        @DisplayName("prazo zero lanca ParametroSimulacaoInvalidoException")
         void prazoZero() {
             assertThrows(
-                    IllegalArgumentException.class,
+                    ParametroSimulacaoInvalidoException.class,
                     () -> calculo.calcular(new BigDecimal("1000.00"), new BigDecimal("1.5"), 0));
         }
 
         @Test
-        @DisplayName("prazo negativo lanca IllegalArgumentException")
+        @DisplayName("prazo negativo lanca ParametroSimulacaoInvalidoException")
         void prazoNegativo() {
             assertThrows(
-                    IllegalArgumentException.class,
+                    ParametroSimulacaoInvalidoException.class,
                     () -> calculo.calcular(new BigDecimal("1000.00"), new BigDecimal("1.5"), -3));
         }
     }

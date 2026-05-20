@@ -1,13 +1,13 @@
 package org.caixaverso.simulador.service.calculo;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.caixaverso.simulador.domain.exception.ParametroSimulacaoInvalidoException;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @ApplicationScoped
 public class CalculoJurosCompostosImpl implements CalculoJurosService {
@@ -42,16 +42,20 @@ public class CalculoJurosCompostosImpl implements CalculoJurosService {
     }
 
     private void validar(BigDecimal valorInicial, BigDecimal taxaJurosMensal, int prazoMeses) {
-        Objects.requireNonNull(valorInicial, "valorInicial nao pode ser nulo");
-        Objects.requireNonNull(taxaJurosMensal, "taxaJurosMensal nao pode ser nulo");
+        if (valorInicial == null) {
+            throw new ParametroSimulacaoInvalidoException("valorInicial nao pode ser nulo");
+        }
+        if (taxaJurosMensal == null) {
+            throw new ParametroSimulacaoInvalidoException("taxaJurosMensal nao pode ser nulo");
+        }
         if (valorInicial.signum() <= 0) {
-            throw new IllegalArgumentException("valorInicial deve ser maior que zero");
+            throw new ParametroSimulacaoInvalidoException("valorInicial deve ser maior que zero");
         }
         if (taxaJurosMensal.signum() < 0) {
-            throw new IllegalArgumentException("taxaJurosMensal nao pode ser negativa");
+            throw new ParametroSimulacaoInvalidoException("taxaJurosMensal nao pode ser negativa");
         }
         if (prazoMeses <= 0) {
-            throw new IllegalArgumentException("prazoMeses deve ser maior que zero");
+            throw new ParametroSimulacaoInvalidoException("prazoMeses deve ser maior que zero");
         }
     }
 
