@@ -51,7 +51,7 @@ public class SimulacaoServiceImpl implements SimulacaoService {
 
     @Override
     public Simulacao buscar(Long id) {
-        return repository.findByIdOptional(id)
+        return repository.findByIdComParcelas(id)
                 .orElseThrow(() -> new SimulacaoNaoEncontradaException(id));
     }
 }

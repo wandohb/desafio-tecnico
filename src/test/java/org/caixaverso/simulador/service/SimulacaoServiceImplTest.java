@@ -125,7 +125,7 @@ class SimulacaoServiceImplTest {
                     6,
                     new BigDecimal("563.08"),
                     new BigDecimal("63.08"));
-            when(repository.findByIdOptional(42L)).thenReturn(Optional.of(existente));
+            when(repository.findByIdComParcelas(42L)).thenReturn(Optional.of(existente));
 
             Simulacao retornada = service.buscar(42L);
 
@@ -136,7 +136,7 @@ class SimulacaoServiceImplTest {
         @Test
         @DisplayName("lanca SimulacaoNaoEncontradaException quando id nao existe")
         void lancaExceptionQuandoNaoEncontrada() {
-            when(repository.findByIdOptional(999L)).thenReturn(Optional.empty());
+            when(repository.findByIdComParcelas(999L)).thenReturn(Optional.empty());
 
             SimulacaoNaoEncontradaException ex = assertThrows(
                     SimulacaoNaoEncontradaException.class,
