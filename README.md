@@ -8,8 +8,8 @@ API REST que calcula juros compostos sobre uma operação de crédito, persiste 
 
 ## Pré-requisitos
 
-- **JDK 25** instalado e `JAVA_HOME` apontando pra ele. Temurin recomendado.
-- O wrapper `./mvnw` (incluso no projeto) cuida do Maven — não precisa instalar separado.
+- **JDK 25** 
+
 
 ---
 
