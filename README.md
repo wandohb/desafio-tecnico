@@ -1,79 +1,205 @@
-# desafio-tecnico
+# Simulador de Financiamentos
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+API REST que calcula juros compostos sobre uma operação de crédito, persiste a memória de cálculo mês a mês e permite consultar simulações anteriores.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+**Stack:** Java 25 · Quarkus 3.35 · Hibernate ORM (Panache) · H2 embarcado · OpenAPI/Swagger · Jacoco com gate de 80%.
 
-## Running the application in dev mode
+---
 
-You can run your application in dev mode that enables live coding using:
+## Pré-requisitos
 
-```shell script
+- **JDK 25** instalado e `JAVA_HOME` apontando pra ele. Temurin recomendado.
+- O wrapper `./mvnw` (incluso no projeto) cuida do Maven — não precisa instalar separado.
+- **Sem Docker.** Tudo roda nativo na máquina, conforme requisito do desafio.
+
+Verificar o JDK:
+
+```bash
+java -version    # deve mostrar 25.x.x
+```
+
+---
+
+## Rodar em dev mode
+
+```bash
 ./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Após ~10s de boot, a API fica em **`http://localhost:8080`**.
 
-## Packaging and running the application
+| Recurso | URL |
+|---|---|
+| Swagger UI | http://localhost:8080/q/swagger-ui |
+| OpenAPI (JSON/YAML) | http://localhost:8080/q/openapi |
+| Quarkus Dev UI (só em dev) | http://localhost:8080/q/dev |
 
-The application can be packaged using:
+Atalhos do console interativo:
 
-```shell script
-./mvnw package
+| Tecla | Ação |
+|---|---|
+| `w` | Abre o app no browser |
+| `d` | Abre o Quarkus Dev UI |
+| `r` | Re-executa os testes |
+| `h` | Lista todos os atalhos |
+| `q` | Encerra o servidor |
+
+---
+
+## Rodar testes e validar cobertura
+
+```bash
+./mvnw verify
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+Esse comando único:
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+1. Compila o código
+2. Executa todos os testes unitários e de integração
+3. Gera o relatório Jacoco em `target/site/jacoco/index.html`
+4. **Valida o gate de cobertura mínima de 80%** (`LINE` e `BRANCH`). Se cair abaixo, o build falha com `BUILD FAILURE`.
 
-If you want to build an _über-jar_, execute the following command:
+Abrir o relatório de cobertura:
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+```bash
+# Windows
+start target/site/jacoco/index.html
+
+# Mac
+open target/site/jacoco/index.html
+
+# Linux
+xdg-open target/site/jacoco/index.html
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+> **Excluídos do gate por convenção:**
+> - `**/dto/**` — records puros sem lógica
+> - `**/persistence/**` — `SimulacaoRepository` é marker class do Panache (sem comportamento próprio)
+>
+> O `lombok.config` na raiz marca código gerado pelo Lombok com `@Generated`, que o Jacoco ignora automaticamente.
 
-## Creating a native executable
+---
 
-You can create a native executable using:
+## Endpoints
 
-```shell script
-./mvnw package -Dnative
+### `POST /api/v1/simulacoes` — criar simulação
+
+```bash
+curl -X POST http://localhost:8080/api/v1/simulacoes \
+  -H "Content-Type: application/json" \
+  -d '{"valorInicial":1000.00,"taxaJurosMensal":1.5,"prazoMeses":12}'
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+**Sucesso (`201 Created`):**
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+```json
+{
+  "id": 1,
+  "valorInicial": 1000.00,
+  "taxaJurosMensal": 1.50,
+  "prazoMeses": 12,
+  "valorTotalFinal": 1195.62,
+  "valorTotalJuros": 195.62,
+  "criadoEm": "2026-05-21T10:00:00Z",
+  "memoriaCalculo": [
+    {"mes": 1,  "saldoInicial": 1000.00, "juros": 15.00, "saldoFinal": 1015.00},
+    {"mes": 2,  "saldoInicial": 1015.00, "juros": 15.22, "saldoFinal": 1030.22},
+    "... (12 entradas no total)"
+  ]
+}
 ```
 
-You can then execute your native executable with: `./target/desafio-tecnico-1.0.0-SNAPSHOT-runner`
+**Validação (`400 Bad Request`)** para qualquer campo nulo, valor ≤ 0, taxa negativa ou prazo fora de `[1, 360]`:
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+```json
+{
+  "timestamp": "2026-05-21T10:00:00Z",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "valorInicial nao pode ser nulo",
+  "path": "/api/v1/simulacoes"
+}
+```
 
-## Related Guides
+### `GET /api/v1/simulacoes/{id}` — buscar simulação
 
-- REST ([guide](https://quarkus.io/guides/rest)): Build RESTful web services and APIs using Jakarta REST (formerly JAX-RS)
-- JDBC Driver - H2 ([guide](https://quarkus.io/guides/datasource)): Connect to the H2 database via JDBC
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplified JPA/Hibernate data access layer with active record and repository patterns
+```bash
+curl http://localhost:8080/api/v1/simulacoes/1
+```
 
-## Provided Code
+**Sucesso (`200 OK`):** mesmo schema do POST response.
 
-### Hibernate ORM
+**Não encontrada (`404 Not Found`):**
 
-Create your first JPA entity
+```json
+{
+  "timestamp": "2026-05-21T10:00:00Z",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Simulacao com id 99999 nao encontrada",
+  "path": "/api/v1/simulacoes/99999"
+}
+```
 
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
+---
 
+## Estrutura do projeto
 
-[Related Hibernate with Panache section...](https://quarkus.io/guides/hibernate-orm-panache)
+```
+src/main/java/org/caixaverso/simulador/
+├── api/                       # Camada HTTP (JAX-RS)
+│   ├── SimulacaoResource.java
+│   ├── dto/                   # Records de Request, Response, ErrorResponse
+│   └── exception/             # ExceptionMappers (400, 404)
+├── service/                   # Orquestração
+│   ├── SimulacaoService.java          (interface)
+│   ├── SimulacaoServiceImpl.java
+│   └── calculo/               # Lógica pura de juros compostos
+│       ├── CalculoJurosService.java   (interface)
+│       ├── CalculoJurosCompostosImpl.java
+│       └── ResultadoCalculo / ParcelaCalculada (records)
+├── persistence/               # PanacheRepository
+│   └── SimulacaoRepository.java
+└── domain/                    # Entidades JPA + exceptions de domínio
+    ├── Simulacao.java
+    ├── Parcela.java
+    └── exception/
+        ├── ParametroSimulacaoInvalidoException.java   (→ HTTP 400)
+        └── SimulacaoNaoEncontradaException.java       (→ HTTP 404)
+```
 
+---
 
-### REST
+## Decisões arquiteturais
 
-Easily start your REST Web Services
+- **Camadas separadas com interfaces** (Resource → Service → Repository). Dependências injetadas via construtor pra facilitar mock em testes.
+- **`BigDecimal` em todos os valores financeiros** com `MathContext.DECIMAL128` em divisões e `RoundingMode.HALF_EVEN` (banker's rounding) em arredondamentos. Padrão IEEE 754 financeiro, evita viés acumulado positivo do `HALF_UP`.
+- **Cálculo isolado** (`CalculoJurosService`) sem dependências de framework. Pode ser testado sem subir o Quarkus.
+- **Repository pattern** (não Active Record) — entity desacoplada do Panache.
+- **Schema DECIMAL reflete o domínio** — `DECIMAL(15,2)` pra monetário, `DECIMAL(6,2)` pra taxa. Sem hack de normalização na apresentação: a representação no banco já está na escala do domínio.
+- **Memória de cálculo persistida** (não recalculada no GET) — auditabilidade financeira: cliente recebe sempre o mesmo valor que viu na criação, mesmo se o algoritmo evoluir.
+- **Exceptions custom de domínio** mapeadas para HTTP status precisos (400 e 404), evitando catch-all em `IllegalArgumentException` (que mascararia bugs internos como erros de cliente).
+- **OpenAPI gerado automaticamente** via `quarkus-smallrye-openapi` — contrato sempre em sincronia com o código.
 
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+---
+
+## Persistência local (H2 file mode)
+
+Em dev mode, o H2 grava em `./data/simulador.mv.db`. Pra zerar o banco:
+
+```bash
+rm -rf data/
+```
+
+Testes usam **H2 in-memory** com schema recriado a cada execução (`drop-and-create`), via perfil `%test` em [application.properties](src/main/resources/application.properties). Não afetam o banco de dev.
+
+---
+
+## CI
+
+Esteira GitHub Actions em [.github/workflows/ci.yml](.github/workflows/ci.yml). Em cada `push` ou `pull_request` pra `main`:
+
+1. Checkout
+2. Setup JDK 25 Temurin (com cache Maven)
+3. `./mvnw -B -ntp verify` (compila + testa + valida cobertura ≥ 80%)
+4. Publica o relatório Jacoco como artefato (retenção 14 dias)

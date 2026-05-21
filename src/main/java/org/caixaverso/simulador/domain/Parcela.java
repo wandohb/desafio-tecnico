@@ -34,13 +34,13 @@ public class Parcela {
     @Column(name = "mes", nullable = false)
     private int mes;
 
-    @Column(name = "saldo_inicial", nullable = false, precision = 19, scale = 4)
+    @Column(name = "saldo_inicial", nullable = false, precision = 15, scale = 2)
     private BigDecimal saldoInicial;
 
-    @Column(name = "juros", nullable = false, precision = 19, scale = 4)
+    @Column(name = "juros", nullable = false, precision = 15, scale = 2)
     private BigDecimal juros;
 
-    @Column(name = "saldo_final", nullable = false, precision = 19, scale = 4)
+    @Column(name = "saldo_final", nullable = false, precision = 15, scale = 2)
     private BigDecimal saldoFinal;
 
     public Parcela(int mes, BigDecimal saldoInicial, BigDecimal juros, BigDecimal saldoFinal) {

@@ -31,19 +31,19 @@ public class Simulacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "valor_inicial", nullable = false, precision = 19, scale = 4)
+    @Column(name = "valor_inicial", nullable = false, precision = 15, scale = 2)
     private BigDecimal valorInicial;
 
-    @Column(name = "taxa_juros_mensal", nullable = false, precision = 9, scale = 6)
+    @Column(name = "taxa_juros_mensal", nullable = false, precision = 6, scale = 2)
     private BigDecimal taxaJurosMensal;
 
     @Column(name = "prazo_meses", nullable = false)
     private int prazoMeses;
 
-    @Column(name = "valor_total_final", nullable = false, precision = 19, scale = 4)
+    @Column(name = "valor_total_final", nullable = false, precision = 15, scale = 2)
     private BigDecimal valorTotalFinal;
 
-    @Column(name = "valor_total_juros", nullable = false, precision = 19, scale = 4)
+    @Column(name = "valor_total_juros", nullable = false, precision = 15, scale = 2)
     private BigDecimal valorTotalJuros;
 
     @CreationTimestamp

@@ -74,8 +74,10 @@ class SimulacaoServiceImplTest {
             Simulacao persistida = captor.getValue();
 
             assertSame(persistida, retornada, "service deve retornar a mesma instancia persistida");
-            assertEquals(valor, persistida.getValorInicial());
-            assertEquals(taxa, persistida.getTaxaJurosMensal());
+            assertEquals(0, valor.compareTo(persistida.getValorInicial()),
+                    "valorInicial preservado (compareTo ignora diferenca de scale apos normalizacao)");
+            assertEquals(0, taxa.compareTo(persistida.getTaxaJurosMensal()),
+                    "taxa preservada (service normaliza scale=1 -> scale=2 antes de persistir)");
             assertEquals(prazo, persistida.getPrazoMeses());
             assertEquals(resultado.valorTotalFinal(), persistida.getValorTotalFinal());
             assertEquals(resultado.valorTotalJuros(), persistida.getValorTotalJuros());

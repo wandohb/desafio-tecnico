@@ -12,9 +12,13 @@ import org.caixaverso.simulador.service.calculo.ParcelaCalculada;
 import org.caixaverso.simulador.service.calculo.ResultadoCalculo;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @ApplicationScoped
 public class SimulacaoServiceImpl implements SimulacaoService {
+
+    private static final int ESCALA = 2;
+    private static final RoundingMode ARREDONDAMENTO = RoundingMode.HALF_EVEN;
 
     private final CalculoJurosService calculo;
     private final SimulacaoRepository repository;
@@ -31,8 +35,8 @@ public class SimulacaoServiceImpl implements SimulacaoService {
         ResultadoCalculo resultado = calculo.calcular(valorInicial, taxaJurosMensal, prazoMeses);
 
         Simulacao simulacao = new Simulacao(
-                valorInicial,
-                taxaJurosMensal,
+                normalizar(valorInicial),
+                normalizar(taxaJurosMensal),
                 prazoMeses,
                 resultado.valorTotalFinal(),
                 resultado.valorTotalJuros());
@@ -53,5 +57,9 @@ public class SimulacaoServiceImpl implements SimulacaoService {
     public Simulacao buscar(Long id) {
         return repository.findByIdComParcelas(id)
                 .orElseThrow(() -> new SimulacaoNaoEncontradaException(id));
+    }
+
+    private BigDecimal normalizar(BigDecimal valor) {
+        return valor.setScale(ESCALA, ARREDONDAMENTO);
     }
 }
