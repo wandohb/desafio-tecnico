@@ -2,7 +2,7 @@
 
 API REST que calcula juros compostos sobre uma operação de crédito, persiste a memória de cálculo mês a mês e permite consultar simulações anteriores.
 
-**Stack:** Java 25 · Quarkus 3.35 · Hibernate ORM (Panache) · H2 embarcado · OpenAPI/Swagger · Jacoco com gate de 80%.
+**Stack:** Java 25 · Quarkus 3.35 · Hibernate ORM (Panache) · H2 embarcado.
 
 ---
 
@@ -10,13 +10,6 @@ API REST que calcula juros compostos sobre uma operação de crédito, persiste 
 
 - **JDK 25** instalado e `JAVA_HOME` apontando pra ele. Temurin recomendado.
 - O wrapper `./mvnw` (incluso no projeto) cuida do Maven — não precisa instalar separado.
-- **Sem Docker.** Tudo roda nativo na máquina, conforme requisito do desafio.
-
-Verificar o JDK:
-
-```bash
-java -version    # deve mostrar 25.x.x
-```
 
 ---
 
@@ -26,23 +19,11 @@ java -version    # deve mostrar 25.x.x
 ./mvnw quarkus:dev
 ```
 
-Após ~10s de boot, a API fica em **`http://localhost:8080`**.
-
 | Recurso | URL |
 |---|---|
 | Swagger UI | http://localhost:8080/q/swagger-ui |
 | OpenAPI (JSON/YAML) | http://localhost:8080/q/openapi |
 | Quarkus Dev UI (só em dev) | http://localhost:8080/q/dev |
-
-Atalhos do console interativo:
-
-| Tecla | Ação |
-|---|---|
-| `w` | Abre o app no browser |
-| `d` | Abre o Quarkus Dev UI |
-| `r` | Re-executa os testes |
-| `h` | Lista todos os atalhos |
-| `q` | Encerra o servidor |
 
 ---
 
@@ -75,8 +56,6 @@ xdg-open target/site/jacoco/index.html
 > **Excluídos do gate por convenção:**
 > - `**/dto/**` — records puros sem lógica
 > - `**/persistence/**` — `SimulacaoRepository` é marker class do Panache (sem comportamento próprio)
->
-> O `lombok.config` na raiz marca código gerado pelo Lombok com `@Generated`, que o Jacoco ignora automaticamente.
 
 ---
 
