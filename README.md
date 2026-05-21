@@ -153,12 +153,8 @@ src/main/java/org/caixaverso/simulador/
 
 - **Camadas separadas com interfaces** (Resource → Service → Repository). Dependências injetadas via construtor pra facilitar mock em testes.
 - **`BigDecimal` em todos os valores financeiros** com `MathContext.DECIMAL128` em divisões e `RoundingMode.HALF_EVEN` (banker's rounding) em arredondamentos. Padrão IEEE 754 financeiro, evita viés acumulado positivo do `HALF_UP`.
-- **Cálculo isolado** (`CalculoJurosService`) sem dependências de framework. Pode ser testado sem subir o Quarkus.
-- **Repository pattern** (não Active Record) — entity desacoplada do Panache.
-- **Schema DECIMAL reflete o domínio** — `DECIMAL(15,2)` pra monetário, `DECIMAL(6,2)` pra taxa. Sem hack de normalização na apresentação: a representação no banco já está na escala do domínio.
 - **Memória de cálculo persistida** (não recalculada no GET) — auditabilidade financeira: cliente recebe sempre o mesmo valor que viu na criação, mesmo se o algoritmo evoluir.
-- **Exceptions custom de domínio** mapeadas para HTTP status precisos (400 e 404), evitando catch-all em `IllegalArgumentException` (que mascararia bugs internos como erros de cliente).
-- **OpenAPI gerado automaticamente** via `quarkus-smallrye-openapi` — contrato sempre em sincronia com o código.
+- **OpenAPI gerado automaticamente** via `quarkus-smallrye-openapi` — contrato sempre em sincronia com o código. Respostas de erro (`400`, `404`) documentadas via `OASFilter`, sem anotação manual em cada endpoint.
 
 ---
 
